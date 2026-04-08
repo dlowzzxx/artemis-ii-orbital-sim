@@ -1,0 +1,265 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artemis II | Trans-Lunar Injection Simulator</title>
+    <meta name="description"
+        content="Experience the precision of orbital mechanics. A physics-accurate simulation of NASA's Artemis II mission.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Boot Screen -->
+    <div id="boot-screen">
+        <div class="boot-quote">
+            <blockquote style="font-family: var(--mono); font-size: 1rem; color: #8892B0; font-style: italic;">"The
+                Earth is the cradle of humanity, but mankind cannot stay in the cradle forever."</blockquote>
+            <cite
+                style="display: block; margin-top: 12px; color: var(--blue); font-size: 0.8rem; font-family: var(--mono); letter-spacing: 2px;">—
+                Konstantin Tsiolkovsky</cite>
+        </div>
+        <div class="boot-terminal" style="margin-top: 30px;">
+            <div class="sys-out">[ ORBITAL FLIGHT DYNAMICS ENG ]</div>
+            <div class="sys-title">ARTEMIS // SIMULATION CORE</div>
+            <div class="sys-line"></div>
+            <div class="sys-data mono">TSIOLKOVSKY PROTOCOL: ACTIVE<br>STATE VECTOR COMPUTER: STANDBY</div>
+        </div>
+        <button class="btn-main bracket-btn" id="btn-boot">
+            <span class="btn-text">INITIALIZE SYSTEM</span>
+            <div class="bracket-tl"></div>
+            <div class="bracket-tr"></div>
+            <div class="bracket-bl"></div>
+            <div class="bracket-br"></div>
+        </button>
+    </div>
+
+    <!-- Mode Selection -->
+    <div id="mode-select">
+        <div class="hud-header mono">[ MISSION CONTROL // PROFILE SELECTION ]</div>
+        <div class="mode-cards">
+            <div class="mode-card hex-panel" id="card-irl">
+                <div class="card-crosshair"></div>
+                <div class="card-diag-line"></div>
+                <div class="mode-recommended mono">RECOMMENDED // NOMINAL</div>
+                <div class="mode-tag mono">SYS.01 // GUIDED EXPERIENCE</div>
+                <h3>ARTEMIS II : LIVE MISSION</h3>
+                <p>Execute the official Artemis II free-return trajectory. Auto-tracking engaged, delta-V verified,
+                    telemetry streaming.</p>
+            </div>
+            <div class="mode-card hex-panel" id="card-custom">
+                <div class="card-crosshair"></div>
+                <div class="card-diag-line"></div>
+                <div class="mode-tag mono">SYS.02 // MANUAL SANDBOX</div>
+                <h3>CUSTOM LAUNCH : OVERRIDE</h3>
+                <p>Manual control unlocked. Calculate your own Trans-Lunar Injection vector. Warning: highly sensitive
+                    to chaotic perturbations.</p>
+                <div class="terminal-input-wrapper">
+                    <span class="prompt-arrow">>_</span>
+                    <input type="text" class="mission-name-input mono" id="mission-name" placeholder="ENTER CALLSIGN..."
+                        maxlength="24" spellcheck="false">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Bar -->
+    <div id="top-bar">
+        <div class="top-left">
+            <div class="status-dot" id="status-dot"></div>
+            <span class="mission-label" id="mission-label">ARTEMIS II</span>
+        </div>
+        <div class="top-center" id="elapsed-time">T+ 00:00:00</div>
+        <!-- Time Warp Label is hidden in Live Mission Mode now, we keep it for Custom -->
+        <div class="top-right" id="time-warp-label">1×</div>
+    </div>
+
+    <!-- Telemetry -->
+    <div class="panel hidden" id="telemetry">
+        <div class="tel-header">FLIGHT DYNAMICS</div>
+        <div class="tel-row"><span class="tel-label">VELOCITY</span><span class="tel-val mono" id="v-vel">0.00
+                km/s</span></div>
+        <div class="tel-row"><span class="tel-label">ALTITUDE</span><span class="tel-val mono" id="v-alt">0 km</span>
+        </div>
+        <div class="tel-row"><span class="tel-label">LUNAR ALT</span><span class="tel-val mono" id="v-alt-moon">--
+                km</span></div>
+        <div class="tel-section"
+            style="margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+            <div class="tel-header tooltip" title="Microsecond discrepancy between Earth clocks and Artemis clocks">TIME
+                DILATION <span style="font-size: 0.7em; opacity: 0.7">(SR + GR)</span></div>
+            <div class="tel-row"><span class="tel-label tooltip"
+                    title="Special Relativity: Fast moving clocks tick slower">VELOCITY (SR)</span><span
+                    class="tel-val mono" id="td-sr" style="color:var(--bad)">0.000 μs</span></div>
+            <div class="tel-row"><span class="tel-label tooltip"
+                    title="General Relativity: Clocks deeper in gravity wells tick slower">GRAVITY (GR)</span><span
+                    class="tel-val mono" id="td-gr" style="color:var(--hl)">0.000 μs</span></div>
+            <div class="tel-row"><span class="tel-label">NET OFFSET</span><span class="tel-val mono" id="td-net">0.000
+                    μs</span></div>
+        </div>
+        <div class="tel-section"
+            style="margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+            <div class="tel-header tooltip" title="Specific Orbital Energy (MJ/kg)">ORBITAL ENERGY <span
+                    style="font-size: 0.7em; opacity: 0.7">(ε = v²/2 - μ/r)</span></div>
+            <div class="tel-row"><span class="tel-label tooltip" title="Kinetic energy from velocity">KINETIC
+                    (E_k)</span><span class="tel-val mono" id="nrg-ke" style="color:var(--hl)">0.00 MJ/kg</span></div>
+            <div class="tel-row"><span class="tel-label tooltip" title="Potential energy in gravity well">POTENTIAL
+                    (E_p)</span><span class="tel-val mono" id="nrg-pe" style="color:var(--bad)">0.00 MJ/kg</span></div>
+            <div class="tel-row"><span class="tel-label tooltip"
+                    title="Net Energy. Positive means escape trajectory.">NET ENERGY</span><span class="tel-val mono"
+                    id="nrg-net">0.00 MJ/kg</span></div>
+        </div>
+        <div class="tel-row" style="margin-top:10px;"><span class="tel-label">DELTA-V BUDGET</span><span
+                class="tel-val mono" style="color:var(--accent)">3,200 m/s</span></div>
+        <div class="tel-section">
+            <div class="tel-row"><span class="tel-label">TARGET</span><span class="tel-val mono">LUNA</span></div>
+            <div class="tel-row"><span class="tel-label" style="color:var(--accent)">CLOSEST APPROACH</span><span
+                    class="tel-val mono" style="color:var(--accent)" id="v-closest">—</span></div>
+        </div>
+        <div class="tel-section" id="tel-time-control">
+            <div class="tel-header">TIME CONTROL</div>
+            <div class="tel-row"><span class="tel-label">WARP</span><span class="tel-val mono"
+                    style="color:var(--primary)" id="time-readout">1×</span></div>
+            <div class="time-slider-wrap"><input type="range" id="time-slider" min="0" max="5" step="0.1" value="0">
+            </div>
+        </div>
+        <button class="btn-plan" id="btn-open-planner">PLAN TLI MANEUVER</button>
+    </div>
+
+    <!-- Flight Director -->
+    <div class="panel hidden" id="flight-director">
+        <div class="fd-header">
+            <div class="fd-dot"></div>FLIGHT DIRECTOR
+        </div>
+        <div id="fd-text">Initializing telemetry systems…</div>
+    </div>
+
+    <!-- Maneuver Planner -->
+    <div class="panel hidden" id="planner">
+        <div class="planner-title">TRANS-LUNAR INJECTION COMPUTER</div>
+        <p class="planner-subtitle">
+            <strong>THE BUTTERFLY EFFECT:</strong> Three parallel realities computed simultaneously.<br>
+            <span class="c-y">■ Yellow</span> — your exact burn.
+            <span class="c-r">■ Red</span> — +5 m/s error.
+            <span class="c-b">■ Blue</span> — −5 m/s error.<br>
+            A 0.1% error can mean missing the Moon entirely.
+        </p>
+        <div class="slider-group">
+            <div class="tel-row"><span class="tel-label">TIME TO IGNITION</span><span class="tel-val mono"
+                    id="tti-readout">0 min</span></div>
+            <input type="range" id="tti-slider" min="0" max="180" step="1" value="0">
+        </div>
+        <div class="slider-group">
+            <div class="tel-row"><span class="tel-label">DELTA-V (THRUST)</span><span class="tel-val mono"
+                    id="dv-readout">0 m/s</span></div>
+            <input type="range" id="dv-slider" min="0" max="3200" step="1" value="0">
+        </div>
+        <div class="planner-btns">
+            <button class="btn-execute" id="btn-execute">EXECUTE BURN</button>
+            <button class="btn-cancel" id="btn-cancel">CANCEL</button>
+        </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div id="bottom-bar">
+        <button class="bar-btn active" id="btn-track">⊕ TRACK SPACECRAFT</button>
+        <button class="bar-btn" id="btn-gravity">🧲 GRAVITY [F=GM/R²]</button>
+        <button class="bar-btn" id="btn-menu">⌂ MAIN MENU</button>
+        <button class="bar-btn" id="btn-reset">↻ RESTART</button>
+        <button class="bar-btn" id="btn-music">♫ MUSIC</button>
+    </div>
+
+    <!-- Tutorial -->
+    <div id="tutorial-overlay">
+        <div id="tutorial-text">
+            <p id="tut-msg"></p>
+            <div class="tut-skip">CLICK ANYWHERE TO CONTINUE</div>
+        </div>
+    </div>
+
+    <!-- IRL Mode Overlays -->
+    <div id="irl-phase-bar">
+        <div class="phase-label" id="irl-phase-label">PHASE 1 / 10</div>
+        <div class="phase-title" id="irl-phase-title">LEO INSERTION</div>
+        <div class="phase-progress" id="phase-pips"></div>
+    </div>
+    <div id="irl-overlay">
+        <div id="irl-narration">
+            <div id="irl-narration-text"></div>
+        </div>
+    </div>
+    <div id="gravity-overlay">
+        <div class="grav-formula" id="grav-formula-text">F = GMm/r²</div>
+        <div class="grav-bar-wrap">
+            <span>EARTH</span>
+            <div class="grav-bar">
+                <div class="grav-bar-fill grav-bar-earth" id="grav-earth-bar" style="width:100%"></div>
+            </div>
+            <div class="grav-bar">
+                <div class="grav-bar-fill grav-bar-moon" id="grav-moon-bar" style="width:0%"></div>
+            </div>
+            <span>MOON</span>
+        </div>
+    </div>
+
+    <!-- Result Overlay -->
+    <div id="result-overlay">
+        <div class="result-card" id="result-card">
+            <h2 id="result-title">MISSION COMPLETE</h2>
+            <p id="result-msg"></p>
+            <div class="result-stats" id="result-stats"></div>
+            <div style="display: flex; gap: 16px; justify-content: center; margin-top: 32px; flex-wrap: wrap;">
+                <button class="bracket-btn" id="btn-result-menu"
+                    style="margin-top:0; font-size:0.8rem; padding:12px 24px;">
+                    <span class="btn-text">MAIN MENU</span>
+                    <div class="bracket-tl"></div>
+                    <div class="bracket-tr"></div>
+                    <div class="bracket-bl"></div>
+                    <div class="bracket-br"></div>
+                </button>
+                <button class="bracket-btn" id="btn-result-restart"
+                    style="margin-top:0; font-size:0.8rem; padding:12px 24px;">
+                    <span class="btn-text">RESTART</span>
+                    <div class="bracket-tl"></div>
+                    <div class="bracket-tr"></div>
+                    <div class="bracket-bl"></div>
+                    <div class="bracket-br"></div>
+                </button>
+                <button class="bracket-btn" id="btn-result-sandbox"
+                    style="margin-top:0; font-size:0.8rem; padding:12px 24px; border-color: rgba(0,229,160,0.6); display: none;">
+                    <span class="btn-text" style="color: #fff;">SYS.02 // TRY SANDBOX</span>
+                    <div class="bracket-tl"></div>
+                    <div class="bracket-tr"></div>
+                    <div class="bracket-bl"></div>
+                    <div class="bracket-br"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pointers -->
+    <div class="obj-pointer" id="ptr-moon" style="color:var(--text)">MOON ›</div>
+    <div class="obj-pointer" id="ptr-earth" style="color:var(--blue)">‹ EARTH</div>
+    <div class="obj-pointer" id="ptr-rocket" style="color:var(--primary)">⊕ SPACECRAFT</div>
+
+    <!-- Credits -->
+    <div class="credits" id="credits" style="display:none;">
+        DEVELOPED BY ERIN KRASNIQI
+        <img src="kosovo.png" class="flag-xk" alt="Kosovo Flag" style="height: 14px; width: 20px; object-fit: contain;">
+    </div>
+
+    <canvas id="simCanvas"></canvas>
+
+    <!-- Audio -->
+    <audio id="audio-interstellar" src="interstellar.mp3" preload="auto"></audio>
+    <audio id="audio-hype" src="notimeforcaution.mp3" preload="auto"></audio>
+
+    <script src="script.js" charset="utf-8"></script>
+</body>
+
+</html>
