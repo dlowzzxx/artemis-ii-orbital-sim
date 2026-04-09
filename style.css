@@ -1043,3 +1043,42 @@ input[type=range]::-webkit-slider-thumb {
 .flag-xk {
     opacity: 0.8;
 }
+
+/* Mobile Portrait UI Optimizations */
+@media screen and (max-width: 768px) and (orientation: portrait) {
+    #telemetry {
+        transform: scale(0.8);
+        transform-origin: top left;
+        width: 300px;
+    }
+
+    #flight-director {
+        top: 290px;
+        right: auto;
+        left: 16px;
+        transform: scale(0.8);
+        transform-origin: top left;
+        width: 330px;
+    }
+
+    #planner {
+        transform: scale(0.85);
+        transform-origin: top left;
+    }
+
+    #irl-overlay {
+        transform: translateX(-50%) scale(0.85);
+        transform-origin: bottom center;
+        bottom: 60px;
+    }
+
+    #tutorial-text {
+        transform: translateX(-50%) scale(0.85);
+        transform-origin: bottom center;
+    }
+
+    .credits {
+        transform: scale(0.8);
+        transform-origin: bottom right;
+    }
+}
