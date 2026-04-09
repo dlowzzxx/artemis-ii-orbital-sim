@@ -37,7 +37,7 @@ Unlike Apollo missions, Artemis II follows a unique "High Earth Orbit" profile. 
 
 Clone the repository:
 ```bash
-git clone [https://github.com/YOUR_USERNAME/artemis-ii-orbital-sim.git](https://github.com/YOUR_USERNAME/artemis-ii-orbital-sim.git)
+git clone [https://github.com/dlowzzxx/artemis-ii-orbital-sim.git](https://github.com/dlowzzxx/artemis-ii-orbital-sim.git)
 ```
 Open index.html in any modern web browser.
 
