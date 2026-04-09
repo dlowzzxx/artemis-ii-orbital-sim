@@ -3,7 +3,13 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta id="vp" name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Natively scales down the "huge UI" on mobile devices while leaving PC completely untouched -->
+    <script>
+        if (screen.width < 850) {
+            document.getElementById('vp').setAttribute('content', 'width=850, user-scalable=no');
+        }
+    </script>
     <title>Artemis II | Trans-Lunar Injection Simulator</title>
     <meta name="description"
         content="Experience the precision of orbital mechanics. A physics-accurate simulation of NASA's Artemis II mission.">
